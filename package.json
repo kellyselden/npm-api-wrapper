@@ -1,0 +1,25 @@
+{
+  "name": "npm-api-wrapper",
+  "version": "0.0.1",
+  "description": "npm api wrapper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kellyselden/npm-api-wrapper.git"
+  },
+  "author": "Kelly Selden <kellyselden@gmail.com> (https://github.com/kellyselden)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kellyselden/npm-api-wrapper/issues"
+  },
+  "homepage": "https://github.com/kellyselden/npm-api-wrapper#readme",
+  "dependencies": {
+    "body-parser": "^1.0.0",
+    "express": "^4.0.0",
+    "morgan": "^1.0.0",
+    "npm": "^3.0.0"
+  }
+}
