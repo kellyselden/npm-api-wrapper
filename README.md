@@ -1,1 +1,1 @@
-# npm-api-wrapper
+# packager-api-wrapper
