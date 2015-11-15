@@ -1,5 +1,10 @@
 var express = require('express');
 var npm = require('npm');
+var cache = require('memory-cache');
+var sem = require('semaphore')(1);
+
+var RateLimiter = require('limiter').RateLimiter;
+var limiter = new RateLimiter(1, 250);
 
 var router = express.Router();
 
@@ -11,39 +16,59 @@ function formatVersions(data) {
 }
 
 function formatDependencies(data) {
-  return data[Object.keys(data)[0]]['dependencies'];
+  var keys = Object.keys(data);
+  if (!keys.length) {
+    return data;
+  }
+  return data[keys[0]]['dependencies'];
 }
 
+var CACHE_TIME = 1000 * 60 * 60; // one hour
+
 router.get('/:package/:command', function(req, res) {
-  npm.load(function(er, npm) {
-    if (er) {
-      console.log(er);
-      return res.send(er);
-    }
+  var url = req.url;
+  var data = cache.get(url);
+  if (data) {
+    return res.send(data);
+  }
 
-    var params = [req.params.package];
-    var transformFunc;
+  var params = [req.params.package];
+  var transformFunc;
 
-    switch (req.params.command) {
-      case 'versions':
-        params.push('time');
-        transformFunc = formatVersions;
-        break;
-      case 'dependencies':
-        params.push('dependencies');
-        transformFunc = formatDependencies;
-        break;
-    }
+  switch (req.params.command) {
+    case 'versions':
+      params.push('time');
+      transformFunc = formatVersions;
+      break;
+    case 'dependencies':
+      params.push('dependencies');
+      transformFunc = formatDependencies;
+      break;
+  }
 
-    npm.commands.view(params, true, function(er, data) {
-      if (er) {
-        console.log(er);
-        return res.send(er);
-      }
+  sem.take(function() {
+    limiter.removeTokens(1, function() {
+      sem.leave();
 
-      data = transformFunc(data);
+      npm.load(function(er, npm) {
+        if (er) {
+          console.log(er);
+          return res.send(er);
+        }
 
-      res.send(data);
+        npm.commands.view(params, true, function(er, data) {
+          if (er) {
+            console.log(er);
+            return res.send(er);
+          }
+
+          data = transformFunc(data);
+
+          cache.put(url, data, CACHE_TIME);
+
+          res.send(data);
+        });
+      });
     });
   });
 });
