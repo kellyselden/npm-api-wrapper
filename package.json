@@ -20,11 +20,13 @@
   "dependencies": {
     "body-parser": "^1.0.0",
     "bower": "^1.0.0",
+    "config": "^1.0.0",
     "express": "^4.0.0",
     "limiter": "^1.0.0",
-    "memory-cache": "0.1.4",
+    "memory-cache": "0.1.6",
     "morgan": "^1.0.0",
     "npm": "^3.0.0",
+    "request": "^2.0.0",
     "semaphore": "^1.0.0"
   }
 }
