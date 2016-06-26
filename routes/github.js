@@ -4,7 +4,7 @@ var querystring = require('querystring');
 var config = require('config');
 
 function getVariable(envVar, configVar) {
-  let value = process.env[envVar];
+  var value = process.env[envVar];
   if (value) {
     return value;
   }
